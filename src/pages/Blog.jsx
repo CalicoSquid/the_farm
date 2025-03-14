@@ -47,9 +47,9 @@ const blogPosts = [
 
 export default function Blog() {
   return (
-    <div className="blog-container">
-      <h2 className="text-3xl h2-text title font-bold text-center mb-8">Blog Feed</h2>
-      <div className="grid-container">
+    <div className="blog-container mx-auto w-full max-w-6xl px-4">
+      <h2 className="text-3xl font-bold text-center mb-8">Blog Feed</h2>
+      <div className="grid-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {blogPosts.map((post, index) => (
           <div
             key={index}
@@ -62,10 +62,7 @@ export default function Blog() {
             <h3>{post.title}</h3>
             <p className="text-sm text-gray-500 mb-4">{post.date}</p>
             <p className="text-base text-gray-700 mb-4">{post.summary}</p>
-            <a
-              href={post.link}
-              className="text-blue-600 hover:underline"
-            >
+            <a href={post.link} className="text-blue-600 hover:underline">
               Read more
             </a>
           </div>
