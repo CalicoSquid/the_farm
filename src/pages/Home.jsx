@@ -7,12 +7,9 @@ export default function Home() {
       <div className="logo-center flex flex-col justify-center items-center relative">
         <img src={logo} className="logo-hero" />
         <p className="tagline">Coming 2025...</p>
-        <Link to="/gallery">
-        <button className="btn-primary absolute bottom-[-50px]">
-         Take a Look
-        </button>
+        <Link to="/gallery" className="absolute bottom-[-50px]">
+          <button className="btn-primary">Take a Look ➪</button>
         </Link>
-        
       </div>
       <div className="home-bg flex flex-1 justify-center items-center"></div>
     </div>
