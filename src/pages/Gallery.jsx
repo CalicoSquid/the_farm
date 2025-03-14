@@ -39,7 +39,7 @@ export default function Gallery() {
         {images.map((image, index) => (
           <img
             key={index}
-            src={image.thumbnailUrl}
+            src={image.fullImage}
             alt={`Thumbnail ${index}`}
             className=" gallery-image cursor-pointer w-full h-70 object-cover transition-opacity duration-500 ease-in-out hover:opacity-80"
             loading="lazy"
