@@ -30,7 +30,7 @@ const Map = () => {
           center={center}
           zoom={zoomLevel}
           scrollWheelZoom={true}
-          className="map"
+          className="map z-1"
         >
           {tileLayer === "carto" ? (
             <TileLayer
