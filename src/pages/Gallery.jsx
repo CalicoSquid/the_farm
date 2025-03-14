@@ -65,7 +65,7 @@ export default function Gallery() {
               onLoad={() => setIsLoading(false)}
             />
 
-            {!isLoading && <p className="text-white mt-2">{imageTitle}</p>}
+            {!isLoading && <p className="text-white text-title mt-2">{imageTitle}</p>}
           </div>
         </div>
       )}

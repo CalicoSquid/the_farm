@@ -15,12 +15,14 @@
 
   .modal-overlay {
     background-color: rgb(0, 0, 0, 0.8); // Semi-transparent black background
+    margin: 1re
   }
   .modal-content {
-    margin: 20;
+    margin: 20px;
     padding: 25px;
-    background-color: rgb(0, 0, 0, 0.4); // Semi-transparent black background
-
+  }
+  .text-title {
+    font-size: 1.3rem;
   }
 
   .image {
@@ -28,13 +30,13 @@
   }
 
   .close-btn {
-    border-radius: 3px;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
     font-size: 1.5em;
+    background-color: #000;
     top: 0;
-    right:1;
     color: white;
-    
-   font-family: $title-font;
-   //background-color: $tertiary-color;
+    border: 1px solid white;
     cursor: pointer;
   }
