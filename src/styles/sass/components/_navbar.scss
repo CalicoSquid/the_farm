@@ -1,0 +1,63 @@
+@use "../variables" as *;
+
+.tablist {
+  flex: 1;
+  align-items: center;
+  background-color: $background-color;
+}
+
+.menu {
+  background-color: $background-color;
+  width: 50%;
+  height: 100vh;
+  background-color: rgba(112, 108, 108, 0.3); /* Semi-transparent black background */
+  backdrop-filter: blur(10px); /* Apply blur 3 the content behind */
+  z-index: 9999; /* Ensure the menu appears above all other content */
+}
+
+.logo {
+  padding: 0.5rem;
+  height: 6rem;
+}
+
+.tab {
+  flex: 1;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  color: $primary-color; /* Default color */
+  transition: color 0.3s ease, transform 0.2s ease; /* Add transition for color and transform */
+}
+
+/* Hover effect */
+.tab:hover {
+  color: $secondary-color; /* Change text color on hover */
+  transform: translateY(-2px); /* Lift link on hover */
+}
+
+/* Active link (when the user is on the current page) */
+.tab-active {
+  color: $secondary-color; /* Make active link the secondary color */
+  font-weight: bold; /* Optional: Make the active tab bold */
+}
+
+/* Optionally add a line under active tab */
+.tab-active::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: $secondary-color; /* Underline effect for active tab */
+  border-radius: 0.5rem;
+  margin-top: 2px;
+}
+
+.hamburger {
+    padding: 0.5rem;
+    cursor: pointer;
+}

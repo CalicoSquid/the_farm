@@ -1,0 +1,40 @@
+@use "../variables" as *;  
+
+.gallery-container {    // Container for the gallery section
+    background-color: $background-color; // Set the background color of the container
+   //padding: 20px; // Add padding to the container
+    margin: 3rem; // Add margin to the container
+  }
+
+  .gallery-image {
+    margin-inline: 4px;
+    border-radius: 10px;   
+    cursor: pointer;
+    height: 300px
+  }
+
+  .modal-overlay {
+    background-color: rgb(0, 0, 0, 0.8); // Semi-transparent black background
+  }
+  .modal-content {
+    margin: 20;
+    padding: 25px;
+    background-color: rgb(0, 0, 0, 0.4); // Semi-transparent black background
+
+  }
+
+  .image {
+    margin-bottom: 5px;
+  }
+
+  .close-btn {
+    border-radius: 3px;
+    font-size: 1.5em;
+    top: 0;
+    right:1;
+    color: white;
+    
+   font-family: $title-font;
+   //background-color: $tertiary-color;
+    cursor: pointer;
+  }

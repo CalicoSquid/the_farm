@@ -1,0 +1,20 @@
+@font-face {
+    font-family: 'Broadly'; /* Custom name for your font */
+    src: url('/public/Broadley-Sans.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+
+
+$primary-color: #3d482a;  // Earthy Stone Gray
+$secondary-color: #8a7d53; // Warm Olive Green
+$tertiary-color: #c51f1f; // Pomegranate 
+$accent-color: #C06C4C;   // Rustic Terracotta
+$highlight-color: #D9A441; // Golden Wheat
+$background-color: #F5E7DA; // Soft Linen Beige
+$dark-green: #2F4F2F; // Deep Forest Green
+
+$title-font: 'Broadly', serif;
+//$primary-font: 'Lato', sans-serif;
+//$secondary-font: 'Raleway', sans-serif; 
