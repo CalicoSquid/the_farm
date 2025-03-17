@@ -47,7 +47,7 @@ export default function Navbar() {
           <Link to="/gallery" className="tab">Gallery</Link>
         </li>
         <li>
-          <Link to="/blog" className="tab">Blog</Link>
+          <Link to="/blog" className="tab">Updates</Link>
         </li>
         <li>
           <Link to="/map" className="tab">Map</Link>
