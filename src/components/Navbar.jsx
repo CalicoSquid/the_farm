@@ -74,7 +74,7 @@ export default function Navbar() {
           </li>
           <li>
             <Link to="/blog" className="tab" onClick={() => setIsMenuOpen(false)}>
-              Blog
+              Updates
             </Link>
           </li>
           <li>
