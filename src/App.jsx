@@ -5,6 +5,7 @@ import Blog from "./pages/Blog"
 import Contact from "./pages/Contact"
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Map from "./pages/Map"
+import BlogPost from "./components/BlogPost"
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/map" element={<Map/>} />
             <Route path="/contact" element={<Contact />} />
           </Routes>
