@@ -12,10 +12,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between items-center p-4 relative z-50">
+    <nav className="flex justify-between items-center p-4 relative z-50 ">
       {/* Logo */}
       <Link to="/">
-      <img src={logo} className={ isMenuOpen ? "logo h-16 w-0 transition-all duration-300 ease-in-out" : "logo h-16 w-fulltransition-all duration-300 ease-in-out "} alt="Logo" /> 
+      <h1 className="h2-text logo">The farm</h1>
       </Link> 
       {/* Hamburger Icon (Visible only on small screens) */}
       <button

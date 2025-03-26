@@ -25,29 +25,31 @@ export default function BlogPost() {
   if (loading) return <p className="loading">Loading...</p>;
   if (!blog) return <p className="error">Blog post not found.</p>;
 
-  // Function to render text with "Rijeka Crnojevića" as a clickable link
-  const renderTextWithLinks = (text) => {
-    const regex = /Rijeka Crnojevića/g;
-    const parts = text.split(regex);
+  // Function to process text: replace "/" with new paragraphs and make "Rijeka Crnojevića" a link
+  const renderTextWithLinksAndParagraphs = (text) => {
+    return text.split("/p/").map((paragraph, i) => {
+      const parts = paragraph.split(/(Rijeka Crnojevića)/g); // Keep the matched text as a separate element
 
-    return parts.map((part, index) => {
-      if (index !== parts.length - 1) {
-        return (
-          <span key={index}>
-            {part}
-            <Link to="/map" className="map-link">
-              Rijeka Crnojevića
-            </Link>
-          </span>
-        );
-      }
-      return part;
+      return (
+        <p key={i} className="blog-paragraph">
+          {parts.map((part, index) =>
+            part === "Rijeka Crnojevića" ? (
+              <Link key={index} to="/map" className="map-link">
+                Rijeka Crnojevića
+              </Link>
+            ) : (
+              part
+            )
+          )}
+        </p>
+      );
     });
   };
 
   return (
-    <div className="blog-post-container">
-      <button className="back-button" onClick={() => navigate(-1)}>← Back</button>
+    <div className="flex justify-center">
+    <div className=" flex-col blog-post-container">
+      <button className="back-button" onClick={() => navigate(-1)}>🢤 Back</button>
       <img src={blog.imageUrl} alt={blog.title} className="blog-post-image" />
       <h1 className="blog-post-title">{blog.title}</h1>
       <small className="blog-date">
@@ -58,10 +60,8 @@ export default function BlogPost() {
           day: "numeric",
         })}
       </small>
-      <div className="blog-post-body">
-        {/* Render the body with links inserted for "Rijeka Crnojevića" */}
-        <p>{renderTextWithLinks(blog.body)}</p>
-      </div>
+      <div className="blog-post-body">{renderTextWithLinksAndParagraphs(blog.body)}</div>
+    </div>
     </div>
   );
 }
