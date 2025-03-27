@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "../assets/logofarm2.png";
+//import logo from "../assets/logofarm2.png";
 
 export default function Navbar() {
   // State to handle the mobile menu visibility
@@ -15,7 +15,7 @@ export default function Navbar() {
     <nav className="flex justify-between items-center p-4 relative z-50 ">
       {/* Logo */}
       <Link to="/">
-      <h1 className="h2-text logo">The farm</h1>
+      {!isMenuOpen && <h1 className="h2-text logo">The farm</h1>}
       </Link> 
       {/* Hamburger Icon (Visible only on small screens) */}
       <button
@@ -60,8 +60,8 @@ export default function Navbar() {
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         } z-50 bg-opacity-50`} 
       >
-        <img src={logo} className="logo h-16" alt="Logo" />
-        <ul className="flex flex-col space-y-4">
+      <h1 className="h2-text logo">The farm</h1>
+      <ul className="flex flex-col space-y-4">
           <li>
             <Link to="/" className="tab" onClick={() => setIsMenuOpen(false)}>
               Home
