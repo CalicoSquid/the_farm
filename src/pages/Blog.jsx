@@ -69,18 +69,18 @@ export default function Blog({ blogs, setBlogs }) {
             <img src={blog.imageUrl} alt={blog.title} className="blog-image" />
             <h3 className="blog-post-title">{blog.title}</h3>
             <small className="blog-date flex items-center gap-2">
-  Published on:{" "}
-  {blog.date?.toDate().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })}
-  {unreadPosts.includes(blog.id) && (
-    <span className="unread-indicator-post bg-red-500 text-white text-xs font-bold shadow-md">
-      New
-    </span>
-  )}
-</small>
+              Published on:{" "}
+              {blog.date?.toDate().toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+              {unreadPosts.includes(blog.id) && (
+                <span className="unread-indicator-post bg-red-500 text-white text-xs font-bold shadow-md">
+                  New
+                </span>
+              )}
+            </small>
 
             <p className="blog-body">{blog.body.substring(0, 250)}...</p>
             <Link
