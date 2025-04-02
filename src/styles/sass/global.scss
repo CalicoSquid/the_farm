@@ -31,3 +31,8 @@ img {
     border-radius: 10px;
 }
 
+.flip {
+    display: inline-block; /* Ensure it can be transformed */
+    transform: scaleX(-1); /* Flip the arrow horizontally */
+  }
+  

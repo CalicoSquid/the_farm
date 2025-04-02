@@ -47,9 +47,9 @@ export default function BlogPost() {
   };
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center w-full">
     <div className=" flex-col blog-post-container">
-      <button className="back-button" onClick={() => navigate(-1)}>🢤 Back</button>
+      <button className="back-button" onClick={() => navigate(-1)}><span className="flip">➪</span> Back</button>
       <img src={blog.imageUrl} alt={blog.title} className="blog-post-image" />
       <h1 className="blog-post-title">{blog.title}</h1>
       <small className="blog-date">

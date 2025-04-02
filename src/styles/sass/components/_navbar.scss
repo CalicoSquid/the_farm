@@ -62,4 +62,40 @@
 .hamburger {
     padding: 0.5rem;
     cursor: pointer;
+    border: 1px solid $primary-color;
+    margin-right: 7px;
+    border-radius: 5px;
+}
+
+.unread-indicator {
+  background: $highlight-color; 
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: absolute;
+  top: 14px;
+  right: -10px;
+}
+
+.full {
+  right: -5px;
+}
+.mobile-menu {
+  background-image: url("/public/menubg4.png");
+  background-size: cover; /* Ensures image covers entire div */
+  background-position: center center; /* Centers the image */
+  background-repeat: no-repeat; /* Ensures the image doesn't repeat */
+  height: 100vh; /* Ensures the div takes up the full height of the screen */
+  width: 100%; /* Ensures the div takes up the full width */
+  position: fixed; /* Fixes the menu position */
+  top: 0; /* Aligns the menu to the top */
+  left: 0; 
+  z-index: 50; /* Ensure it’s above other content */
+  overflow: hidden; /* Prevents any overflow issues */
 }

@@ -76,7 +76,6 @@
 }
 
 .blog-read-more {
-  color: #2563eb; // text-blue-600
   text-decoration: underline;
 
   &:hover {
@@ -87,8 +86,8 @@
 .blog-post-container {
   padding: 1.5rem;
   background-color: white;
-  border-radius: 0.75rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 100%;
 }
 
 .blog-post-title {
@@ -197,3 +196,14 @@
     opacity: 0;
   }
 }
+
+.unread-indicator-post {
+  background-color: $highlight-color; // Tailwind's red-500
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 5px; // Fully rounded
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
