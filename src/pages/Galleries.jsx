@@ -1,6 +1,6 @@
 import onion from "../assets/onion.jpg";
-import rijeka from "../assets/rijeka.jpg";
-import progress from "../assets/progress.jpg";
+import rijeka from "../assets/rijeka2.png";
+import progress from "../assets/ruins2.jpg";
 import { Link } from "react-router-dom";
 
 export default function Gallery() {
