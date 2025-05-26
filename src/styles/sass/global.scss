@@ -35,4 +35,8 @@ img {
     display: inline-block; /* Ensure it can be transformed */
     transform: scaleX(-1); /* Flip the arrow horizontally */
   }
+
+  .mt-2 {
+    margin-top: 10px;
+  }
   

@@ -3,6 +3,7 @@ import { UnreadContext } from "./context/unreadContext";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
+import Galleries from "./pages/Galleries";
 import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -10,6 +11,7 @@ import Map from "./pages/Map";
 import BlogPost from "./components/BlogPost";
 import { collection, getDocs } from "firebase/firestore";
 import db from "../firebase.config";
+import ImageGrid from "./components/ImageGrid";
 
 function App() {
   const [blogs, setBlogs] = useState([]);
@@ -51,7 +53,8 @@ function App() {
         <div className="flex flex-1 p-4">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/gallery" element={<Galleries />} />
+            <Route path="/gallery/:id" element={<ImageGrid />} />
             <Route
               path="/blog"
               element={<Blog blogs={blogs} setBlogs={setBlogs} />}
