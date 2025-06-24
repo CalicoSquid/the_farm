@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import db from "../../firebase.config";
+import renderTextWithLinksAndParagraphs from "../utils/rendertexwithparagraphs.jsx";
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -25,26 +26,7 @@ export default function BlogPost() {
   if (loading) return <p className="loading">Loading...</p>;
   if (!blog) return <p className="error">Blog post not found.</p>;
 
-  // Function to process text: replace "/" with new paragraphs and make "Rijeka Crnojevića" a link
-  const renderTextWithLinksAndParagraphs = (text) => {
-    return text.split("/p/").map((paragraph, i) => {
-      const parts = paragraph.split(/(Rijeka Crnojevića)/g); // Keep the matched text as a separate element
-
-      return (
-        <p key={i} className="blog-paragraph">
-          {parts.map((part, index) =>
-            part === "Rijeka Crnojevića" ? (
-              <Link key={index} to="/map" className="map-link">
-                Rijeka Crnojevića
-              </Link>
-            ) : (
-              part
-            )
-          )}
-        </p>
-      );
-    });
-  };
+  // Function to process text: replace "/" with new paragraphs and make "Rijeka Crnojevića" a li
 
   return (
     <div className="flex justify-center w-full">

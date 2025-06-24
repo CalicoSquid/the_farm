@@ -3,6 +3,7 @@ import { doc, updateDoc, increment } from "firebase/firestore";
 import db from "../../firebase.config";
 import { Link } from "react-router-dom";
 import { UnreadContext } from "../context/unreadContext";
+import renderTextWithLinksAndParagraphs from "../utils/rendertexwithparagraphs";
 
 export default function Blog({ blogs, setBlogs }) {
   const [sortOrder, setSortOrder] = useState("oldest");
@@ -82,7 +83,7 @@ export default function Blog({ blogs, setBlogs }) {
               )}
             </small>
 
-            <p className="blog-body">{blog.body.substring(0, 250)}...</p>
+            <p className="blog-body">{renderTextWithLinksAndParagraphs(blog.body.substring(0, 250))}...</p>
             <Link
               to={`/blog/${blog.id}`}
               onClick={() => handleMarkAsRead(blog.id)}
