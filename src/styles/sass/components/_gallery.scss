@@ -76,3 +76,12 @@
   border: 1px solid white;
   cursor: pointer;
 }
+
+.image-sort {
+  background-color: #e5e7eb; // bg-gray-200
+  color: #000;
+  font-weight: normal;
+  &:hover {
+    background-color: #d1d5db; // hover:bg-gray-300
+  }
+}

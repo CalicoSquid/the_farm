@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import db from "../../firebase.config";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 export default function ImageGrid() {
   const [images, setImages] = useState([]);
-  const [loadingStates, setLoadingStates] = useState([]);
+  const [loadingStates, setLoadingStates] = useState({});
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageTitle, setImageTitle] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [orderImagesBy, setOrderImagesBy] = useState("desc");
 
   const { id } = useParams();
   const location = useLocation();
@@ -17,15 +18,20 @@ export default function ImageGrid() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchImages = async () => {
-      const querySnapshot = await getDocs(collection(db, id));
-      const imageUrls = querySnapshot.docs.map((doc) => doc.data());
+    const fetchImages = async (order) => {
+      const imagesRef = collection(db, id);
+      const q = query(imagesRef, orderBy("createdAt", order));
+      const querySnapshot = await getDocs(q);
+      const imageUrls = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setImages(imageUrls);
-      setLoadingStates(Array(imageUrls.length).fill(false)); // Reset loading states
+      setLoadingStates({}); // ✅ Reset load state correctly
     };
 
-    fetchImages();
-  }, [id]);
+    fetchImages(orderImagesBy);
+  }, [id, orderImagesBy]);
 
   const handleImageClick = (url, title) => {
     setIsLoading(true);
@@ -39,12 +45,11 @@ export default function ImageGrid() {
     setIsLoading(false);
   };
 
-  const handleImageLoad = (index) => {
-    setLoadingStates((prev) => {
-      const updated = [...prev];
-      updated[index] = true;
-      return updated;
-    });
+  const handleImageLoad = (url) => {
+    setLoadingStates((prev) => ({
+      ...prev,
+      [url]: true,
+    }));
   };
 
   return (
@@ -52,9 +57,19 @@ export default function ImageGrid() {
       <h2 className="text-2xl h2-text title font-bold text-center mb-6">
         {pageTitle}
       </h2>
-      <button className="back-button" onClick={() => navigate(-1)}>
-        <span className="flip">➪</span> Back
-      </button>
+      <div className="buttons flex justify-between">
+        <button className="back-button" onClick={() => navigate(-1)}>
+          <span className="flip">➪</span> Back
+        </button>
+        <button
+          className="back-button image-sort"
+          onClick={() =>
+            setOrderImagesBy(orderImagesBy === "desc" ? "asc" : "desc")
+          }
+        >
+          Sort by: {orderImagesBy === "desc" ? "Newest" : "Oldest"}
+        </button>
+      </div>
 
       {/* Image Grid */}
       <div
@@ -63,14 +78,14 @@ export default function ImageGrid() {
       >
         {images.map((image, index) => (
           <img
-            key={index}
+            key={image.id} // ✅ Use unique Firestore document ID
             src={image.url}
             alt={`Thumbnail ${index}`}
             className={`gallery-image cursor-pointer w-full h-70 object-cover transition-opacity duration-500 ease-in-out hover:opacity-80 ${
-              loadingStates[index] ? "opacity-100" : "opacity-0"
+              loadingStates[image.url] === false ? "opacity-0" : "opacity-100"
             }`}
             loading="lazy"
-            onLoad={() => handleImageLoad(index)}
+            onLoad={() => handleImageLoad(image.url)}
             onClick={() => handleImageClick(image.url, image.description)}
           />
         ))}
