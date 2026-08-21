@@ -43,3 +43,7 @@ removed by URL.
 This pass adds the `/dreams` section as the hopeful counterpart to **From the Farm**. The saved former homepage concept image now lives here as an explicitly aspirational daydream, alongside a deliberately loose set of future ideas. Dreams is also linked from the homepage, primary navigation, mobile navigation, and footer.
 
 The section is intentionally static for now: it is a place for possibilities rather than a project tracker. No timelines, completion percentages, or commitments are attached to the ideas.
+
+## Pass 6 — comeback article
+
+The August 2026 comeback essay, **“It’s Been Quiet Around Here”**, lives in `src/content/localBlogs.js` and is merged with the existing Firestore `Blogs` collection at runtime. This makes the essay deployable without an admin write path while keeping all existing Firestore posts intact. If a Firestore document is later created with the same id (`its-been-quiet-around-here`), the remote document automatically takes precedence.

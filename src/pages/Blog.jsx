@@ -3,8 +3,7 @@ import { doc, increment, updateDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import db from "../../firebase.config";
 import { UnreadContext } from "../context/unreadContext";
-
-const getDate = (blog) => blog.date?.toDate?.() || new Date(0);
+import { getBlogDate } from "../utils/blogDate";
 const stripFormatting = (text = "") =>
   text.replace(/\/p\//g, " ").replace(/\/br\//g, " ").replace(/\/b\//g, "").replace(/\[([^\]]+)\]\{[^}]+\}/g, "$1");
 
@@ -21,15 +20,20 @@ export default function Blog({ blogs, setBlogs }) {
   const sortedBlogs = useMemo(
     () =>
       [...blogs].sort((a, b) =>
-        sortOrder === "newest" ? getDate(b) - getDate(a) : getDate(a) - getDate(b)
+        sortOrder === "newest" ? getBlogDate(b) - getBlogDate(a) : getBlogDate(a) - getBlogDate(b)
       ),
     [blogs, sortOrder]
   );
 
   const handleLike = async (id) => {
     if (likedPosts.has(id)) return;
+    const target = blogs.find((blog) => blog.id === id);
+
     try {
-      await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+      if (!target?.local) {
+        await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+      }
+
       setLikedPosts((prev) => {
         const next = new Set(prev);
         next.add(id);
@@ -73,7 +77,7 @@ export default function Blog({ blogs, setBlogs }) {
       <div className="journal-list">
         {sortedBlogs.length === 0 && <div className="empty-state">Loading updates…</div>}
         {sortedBlogs.map((blog) => {
-          const excerpt = stripFormatting(blog.body).trim();
+          const excerpt = blog.excerpt || stripFormatting(blog.body).trim();
           const isUnread = unreadPosts.includes(blog.id);
           const isLiked = likedPosts.has(blog.id);
           return (
@@ -83,7 +87,7 @@ export default function Blog({ blogs, setBlogs }) {
               </Link>
               <div className="journal-card__content">
                 <div className="journal-card__meta">
-                  <time>{getDate(blog).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>
+                  <time>{getBlogDate(blog).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>
                   {isUnread && <span className="status-pill">New</span>}
                 </div>
                 <h2>
@@ -100,7 +104,7 @@ export default function Blog({ blogs, setBlogs }) {
                     disabled={isLiked}
                     aria-label={isLiked ? "Already liked" : "Like this update"}
                   >
-                    <span aria-hidden="true">♥</span> {blog.likes || 0}
+                    <span aria-hidden="true">♥</span> {blog.local ? (isLiked ? "Liked" : "Like") : (blog.likes || 0)}
                   </button>
                 </div>
               </div>

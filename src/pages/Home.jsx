@@ -42,8 +42,8 @@ export default function Home() {
               <Link to="/from-the-farm" className="button button--light">
                 See what’s happening <span aria-hidden="true">→</span>
               </Link>
-              <Link to="/blog" className="text-link text-link--light">
-                Read the longer story <span aria-hidden="true">↗</span>
+              <Link to="/blog/its-been-quiet-around-here" className="text-link text-link--light">
+                Read the latest story <span aria-hidden="true">↗</span>
               </Link>
             </div>
           </div>

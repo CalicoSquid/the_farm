@@ -14,27 +14,40 @@ import Galleries from "./pages/Galleries";
 import Blog from "./pages/Blog";
 import Map from "./pages/Map";
 import Contact from "./pages/Contact";
+import { localBlogs } from "./content/localBlogs";
 
 function App() {
-  const [blogs, setBlogs] = useState([]);
+  const [blogs, setBlogs] = useState(localBlogs);
   const { setUnreadPosts } = useContext(UnreadContext);
 
   useEffect(() => {
+    const updateUnread = (allBlogs) => {
+      const storedRead = JSON.parse(localStorage.getItem("readPosts")) || [];
+      setUnreadPosts(
+        allBlogs.map((blog) => blog.id).filter((id) => !storedRead.includes(id))
+      );
+    };
+
+    // Local essays are available immediately, even if Firestore is slow or offline.
+    updateUnread(localBlogs);
+
     const fetchBlogs = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "Blogs"));
-        const blogData = querySnapshot.docs.map((doc) => ({
+        const remoteBlogs = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
-        setBlogs(blogData);
+        // Firestore wins if an article is later migrated there with the same id.
+        const merged = new Map(localBlogs.map((blog) => [blog.id, blog]));
+        remoteBlogs.forEach((blog) => merged.set(blog.id, blog));
+        const allBlogs = [...merged.values()];
 
-        const storedRead = JSON.parse(localStorage.getItem("readPosts")) || [];
-        setUnreadPosts(
-          blogData.map((blog) => blog.id).filter((id) => !storedRead.includes(id))
-        );
+        setBlogs(allBlogs);
+        updateUnread(allBlogs);
       } catch (error) {
+        // The local comeback essay still works if Firestore cannot be reached.
         console.error("Unable to load farm updates:", error);
       }
     };

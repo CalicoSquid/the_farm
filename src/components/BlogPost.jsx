@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
 import db from "../../firebase.config";
 import renderTextWithLinksAndParagraphs from "../utils/rendertexwithparagraphs.jsx";
+import { getLocalBlogById } from "../content/localBlogs";
+import { getBlogDate } from "../utils/blogDate";
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -12,17 +14,25 @@ export default function BlogPost() {
   const [liked, setLiked] = useState(false);
 
   useEffect(() => {
-    const fetchBlog = async () => {
-      try {
-        const docSnap = await getDoc(doc(db, "Blogs", id));
-        if (docSnap.exists()) setBlog(docSnap.data());
-      } catch (error) {
-        console.error("Unable to load update:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBlog();
+    const localBlog = getLocalBlogById(id);
+
+    if (localBlog) {
+      setBlog(localBlog);
+      setLoading(false);
+    } else {
+      const fetchBlog = async () => {
+        try {
+          const docSnap = await getDoc(doc(db, "Blogs", id));
+          if (docSnap.exists()) setBlog(docSnap.data());
+        } catch (error) {
+          console.error("Unable to load update:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchBlog();
+    }
+
     const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || [];
     setLiked(likedPosts.includes(id));
   }, [id]);
@@ -30,7 +40,9 @@ export default function BlogPost() {
   const handleLike = async () => {
     if (liked) return;
     try {
-      await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+      if (!blog?.local) {
+        await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+      }
       setLiked(true);
       const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || [];
       localStorage.setItem("likedPosts", JSON.stringify([...new Set([...likedPosts, id])]));
@@ -43,7 +55,7 @@ export default function BlogPost() {
   if (loading) return <main className="page-shell"><div className="empty-state">Loading update…</div></main>;
   if (!blog) return <main className="page-shell"><div className="empty-state">That update couldn’t be found.</div></main>;
 
-  const published = blog.date?.toDate?.();
+  const published = getBlogDate(blog);
 
   return (
     <main className="article-page">
@@ -54,6 +66,7 @@ export default function BlogPost() {
         <header className="article__header">
           <p className="eyebrow">The longer story</p>
           <h1>{blog.title}</h1>
+          {blog.dek && <p className="article__dek">{blog.dek}</p>}
           {published && (
             <time>{published.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>
           )}
@@ -62,9 +75,21 @@ export default function BlogPost() {
           <img src={blog.imageUrl} alt={blog.title} />
         </figure>
         <div className="article__body">{renderTextWithLinksAndParagraphs(blog.body)}</div>
+        {blog.relatedLinks?.length > 0 && (
+          <aside className="article__related" aria-label="Keep exploring the farm">
+            {blog.relatedLinks.map((item) => (
+              <Link to={item.to} className="article-related-card" key={item.to}>
+                <p className="eyebrow">{item.eyebrow}</p>
+                <h2>{item.title}</h2>
+                <p>{item.copy}</p>
+                <span className="text-link">{item.label} <span aria-hidden="true">→</span></span>
+              </Link>
+            ))}
+          </aside>
+        )}
         <footer className="article__footer">
           <button className={`like-button like-button--article${liked ? " liked" : ""}`} onClick={handleLike} disabled={liked}>
-            <span aria-hidden="true">♥</span> {liked ? "Liked" : "Like this"} · {blog.likes || 0}
+            <span aria-hidden="true">♥</span> {liked ? "Liked" : "Like this"}{!blog.local && ` · ${blog.likes || 0}`}
           </button>
         </footer>
       </article>
