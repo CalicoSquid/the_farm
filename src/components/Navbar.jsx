@@ -65,7 +65,6 @@ export default function Navbar() {
           aria-expanded={isMenuOpen}
           aria-controls="mobile-navigation"
         >
-          <span className="menu-trigger__label">{isMenuOpen ? "Close" : "Menu"}</span>
           <span className="menu-trigger__icon" aria-hidden="true">
             <span />
             <span />
