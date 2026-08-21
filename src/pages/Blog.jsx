@@ -3,9 +3,25 @@ import { doc, increment, updateDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import db from "../../firebase.config";
 import { UnreadContext } from "../context/unreadContext";
-import { getBlogDate } from "../utils/blogDate";
+import { localBlogs } from "../content/localBlogs";
+
+const getDate = (blog) => {
+  if (blog.date?.toDate) return blog.date.toDate();
+  const parsed = new Date(blog.date || 0);
+  return Number.isNaN(parsed.getTime()) ? new Date(0) : parsed;
+};
+
 const stripFormatting = (text = "") =>
   text.replace(/\/p\//g, " ").replace(/\/br\//g, " ").replace(/\/b\//g, "").replace(/\[([^\]]+)\]\{[^}]+\}/g, "$1");
+
+const readStored = (key) => {
+  try {
+    const value = JSON.parse(localStorage.getItem(key)) || [];
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+};
 
 export default function Blog({ blogs, setBlogs }) {
   const [sortOrder, setSortOrder] = useState("newest");
@@ -13,25 +29,31 @@ export default function Blog({ blogs, setBlogs }) {
   const { unreadPosts, markAsRead } = useContext(UnreadContext);
 
   useEffect(() => {
-    const storedLikes = JSON.parse(localStorage.getItem("likedPosts")) || [];
-    setLikedPosts(new Set(storedLikes));
+    setLikedPosts(new Set(readStored("likedPosts")));
   }, []);
+
+  // Important: Firestore's `blogs` state is left completely untouched.
+  // The local comeback essay only joins the list here at render time.
+  const allBlogs = useMemo(() => [...localBlogs, ...blogs], [blogs]);
 
   const sortedBlogs = useMemo(
     () =>
-      [...blogs].sort((a, b) =>
-        sortOrder === "newest" ? getBlogDate(b) - getBlogDate(a) : getBlogDate(a) - getBlogDate(b)
+      [...allBlogs].sort((a, b) =>
+        sortOrder === "newest" ? getDate(b) - getDate(a) : getDate(a) - getDate(b)
       ),
-    [blogs, sortOrder]
+    [allBlogs, sortOrder]
   );
 
   const handleLike = async (id) => {
     if (likedPosts.has(id)) return;
-    const target = blogs.find((blog) => blog.id === id);
+    const target = allBlogs.find((blog) => blog.id === id);
 
     try {
       if (!target?.local) {
         await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+        setBlogs((prev) =>
+          prev.map((blog) => (blog.id === id ? { ...blog, likes: (blog.likes || 0) + 1 } : blog))
+        );
       }
 
       setLikedPosts((prev) => {
@@ -40,16 +62,13 @@ export default function Blog({ blogs, setBlogs }) {
         localStorage.setItem("likedPosts", JSON.stringify([...next]));
         return next;
       });
-      setBlogs((prev) =>
-        prev.map((blog) => (blog.id === id ? { ...blog, likes: (blog.likes || 0) + 1 } : blog))
-      );
     } catch (error) {
       console.error("Unable to like update:", error);
     }
   };
 
   const handleMarkAsRead = (id) => {
-    const storedRead = JSON.parse(localStorage.getItem("readPosts")) || [];
+    const storedRead = readStored("readPosts");
     if (!storedRead.includes(id)) {
       localStorage.setItem("readPosts", JSON.stringify([...storedRead, id]));
     }
@@ -81,13 +100,13 @@ export default function Blog({ blogs, setBlogs }) {
           const isUnread = unreadPosts.includes(blog.id);
           const isLiked = likedPosts.has(blog.id);
           return (
-            <article key={blog.id} className="journal-card">
+            <article key={`${blog.local ? "local" : "remote"}-${blog.id}`} className="journal-card">
               <Link to={`/blog/${blog.id}`} onClick={() => handleMarkAsRead(blog.id)} className="journal-card__image-link">
                 <img src={blog.imageUrl} alt="" className="journal-card__image" loading="lazy" />
               </Link>
               <div className="journal-card__content">
                 <div className="journal-card__meta">
-                  <time>{getBlogDate(blog).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>
+                  <time>{getDate(blog).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>
                   {isUnread && <span className="status-pill">New</span>}
                 </div>
                 <h2>

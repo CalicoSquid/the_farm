@@ -13,40 +13,28 @@ import Dreams from "./pages/Dreams";
 import Galleries from "./pages/Galleries";
 import Blog from "./pages/Blog";
 import Map from "./pages/Map";
-import { localBlogs } from "./content/localBlogs";
+import Contact from "./pages/Contact";
 
 function App() {
-  const [blogs, setBlogs] = useState(localBlogs);
+  const [blogs, setBlogs] = useState([]);
   const { setUnreadPosts } = useContext(UnreadContext);
 
   useEffect(() => {
-    const updateUnread = (allBlogs) => {
-      const storedRead = JSON.parse(localStorage.getItem("readPosts")) || [];
-      setUnreadPosts(
-        allBlogs.map((blog) => blog.id).filter((id) => !storedRead.includes(id))
-      );
-    };
-
-    // Local essays are available immediately, even if Firestore is slow or offline.
-    updateUnread(localBlogs);
-
     const fetchBlogs = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "Blogs"));
-        const remoteBlogs = querySnapshot.docs.map((doc) => ({
+        const blogData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
-        // Firestore wins if an article is later migrated there with the same id.
-        const merged = new Map(localBlogs.map((blog) => [blog.id, blog]));
-        remoteBlogs.forEach((blog) => merged.set(blog.id, blog));
-        const allBlogs = [...merged.values()];
+        setBlogs(blogData);
 
-        setBlogs(allBlogs);
-        updateUnread(allBlogs);
+        const storedRead = JSON.parse(localStorage.getItem("readPosts")) || [];
+        setUnreadPosts(
+          blogData.map((blog) => blog.id).filter((id) => !storedRead.includes(id))
+        );
       } catch (error) {
-        // The local comeback essay still works if Firestore cannot be reached.
         console.error("Unable to load farm updates:", error);
       }
     };
@@ -68,6 +56,7 @@ function App() {
             <Route path="/blog" element={<Blog blogs={blogs} setBlogs={setBlogs} />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/map" element={<Map />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </div>
         <Footer />

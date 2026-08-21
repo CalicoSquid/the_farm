@@ -4,7 +4,21 @@ import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
 import db from "../../firebase.config";
 import renderTextWithLinksAndParagraphs from "../utils/rendertexwithparagraphs.jsx";
 import { getLocalBlogById } from "../content/localBlogs";
-import { getBlogDate } from "../utils/blogDate";
+
+const getDate = (blog) => {
+  if (blog?.date?.toDate) return blog.date.toDate();
+  const parsed = new Date(blog?.date || 0);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const readStored = (key) => {
+  try {
+    const value = JSON.parse(localStorage.getItem(key)) || [];
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+};
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -22,6 +36,7 @@ export default function BlogPost() {
     } else {
       const fetchBlog = async () => {
         try {
+          // Keep the working remote article path exactly simple: direct getDoc.
           const docSnap = await getDoc(doc(db, "Blogs", id));
           if (docSnap.exists()) setBlog(docSnap.data());
         } catch (error) {
@@ -33,20 +48,21 @@ export default function BlogPost() {
       fetchBlog();
     }
 
-    const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || [];
-    setLiked(likedPosts.includes(id));
+    setLiked(readStored("likedPosts").includes(id));
   }, [id]);
 
   const handleLike = async () => {
     if (liked) return;
+
     try {
       if (!blog?.local) {
         await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+        setBlog((prev) => ({ ...prev, likes: (prev.likes || 0) + 1 }));
       }
+
       setLiked(true);
-      const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || [];
+      const likedPosts = readStored("likedPosts");
       localStorage.setItem("likedPosts", JSON.stringify([...new Set([...likedPosts, id])]));
-      setBlog((prev) => ({ ...prev, likes: (prev.likes || 0) + 1 }));
     } catch (error) {
       console.error("Unable to like update:", error);
     }
@@ -55,7 +71,7 @@ export default function BlogPost() {
   if (loading) return <main className="page-shell"><div className="empty-state">Loading update…</div></main>;
   if (!blog) return <main className="page-shell"><div className="empty-state">That update couldn’t be found.</div></main>;
 
-  const published = getBlogDate(blog);
+  const published = getDate(blog);
 
   return (
     <main className="article-page">
@@ -75,6 +91,7 @@ export default function BlogPost() {
           <img src={blog.imageUrl} alt={blog.title} />
         </figure>
         <div className="article__body">{renderTextWithLinksAndParagraphs(blog.body)}</div>
+
         {blog.relatedLinks?.length > 0 && (
           <aside className="article__related" aria-label="Keep exploring the farm">
             {blog.relatedLinks.map((item) => (
@@ -87,6 +104,7 @@ export default function BlogPost() {
             ))}
           </aside>
         )}
+
         <footer className="article__footer">
           <button className={`like-button like-button--article${liked ? " liked" : ""}`} onClick={handleLike} disabled={liked}>
             <span aria-hidden="true">♥</span> {liked ? "Liked" : "Like this"}{!blog.local && ` · ${blog.likes || 0}`}

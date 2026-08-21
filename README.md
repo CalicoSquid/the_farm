@@ -1,44 +1,45 @@
-# I Bought a Farm
+# React + Vite
 
-React + Vite site for the farm in Rijeka Crnojevića, Montenegro.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Development
+Currently, two official plugins are available:
 
-```bash
-npm install
-npm run dev
-```
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-Production check:
+## Expanding the ESLint configuration
 
-```bash
-npm run build
-```
+If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
-## Content
+## From the Farm feed
 
-### Longer updates
+Pass 4 introduces a lightweight running farm feed at `/from-the-farm`.
 
-Older posts are read from the Firestore `Blogs` collection. The August 2026 comeback essay, **It’s Been Quiet Around Here**, lives in `src/content/localBlogs.js` and is merged with Firestore at runtime. If a Firestore document is later created with the same id (`its-been-quiet-around-here`), the Firestore version takes precedence.
+The site reads the new `FarmNotes` Firestore collection and also folds in recent
+images from the existing `Land`, `Nature`, and `Area` collections. That means the
+new section can show the photo history that already exists before the Android
+uploader is refactored.
 
-### From the Farm
-
-The running feed at `/from-the-farm` reads the `FarmNotes` collection and also folds in the existing `Land`, `Nature`, and `Area` collections so the old uploader history remains useful.
-
-Future `FarmNotes` documents can use:
+Future Android uploads can write documents to `FarmNotes` using this shape:
 
 ```js
 {
-  imageUrl: "https://...",
-  text: "Cleared another...",
-  title: "",
-  category: "Progress",
-  place: "Lower terrace",
+  imageUrl: "https://...",     // optional if this is a text-only note
+  text: "Cleared another...", // short note / caption
+  title: "",                  // optional
+  category: "Progress",       // e.g. Progress, Nature, Around here, Small win, Found, Thinking, Problem
+  place: "Lower terrace",     // optional; ready for future Places support
   createdAt: serverTimestamp(),
-  featured: false
+  featured: false              // optional; reserved for later curation
 }
 ```
 
-### Dreams
+The feed deliberately normalizes old gallery documents (`url`, `description`,
+`createdAt`) and new farm-note documents into one UI. Duplicate images are
+removed by URL.
 
-`/dreams` is intentionally static for now: ideas and possibilities, not a project tracker.
+## 2026 refresh — Pass 5: Dreams
+
+This pass adds the `/dreams` section as the hopeful counterpart to **From the Farm**. The saved former homepage concept image now lives here as an explicitly aspirational daydream, alongside a deliberately loose set of future ideas. Dreams is also linked from the homepage, primary navigation, mobile navigation, and footer.
+
+The section is intentionally static for now: it is a place for possibilities rather than a project tracker. No timelines, completion percentages, or commitments are attached to the ideas.

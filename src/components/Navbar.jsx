@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { UnreadContext } from "../context/unreadContext";
 
 const navItems = [
@@ -14,13 +14,12 @@ const navItems = [
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { unreadCount } = useContext(UnreadContext);
+  const location = useLocation();
 
+  // Route changes should always leave the navigation in a clean state.
   useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMenuOpen]);
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleEscape = (event) => {
@@ -80,19 +79,18 @@ export default function Navbar() {
         id="mobile-navigation"
         aria-hidden={!isMenuOpen}
       >
-        <div className="mobile-nav__backdrop" onClick={() => setIsMenuOpen(false)} />
         <div className="mobile-nav__panel">
           <div className="mobile-nav__intro">
             <span className="mobile-nav__eyebrow">I bought a farm</span>
             <p>Old stone, wild land, and the long road back.</p>
           </div>
+
           <nav className="mobile-nav__links" aria-label="Mobile navigation">
             {navItems.map((item, index) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                onClick={() => setIsMenuOpen(false)}
                 className={({ isActive }) =>
                   `mobile-nav__link${isActive ? " mobile-nav__link--active" : ""}`
                 }
@@ -105,6 +103,7 @@ export default function Navbar() {
               </NavLink>
             ))}
           </nav>
+
           <p className="mobile-nav__footer">A very slow project in Montenegro.</p>
         </div>
       </div>
