@@ -1,7 +1,11 @@
 @use "variables" as *;
-@use "global";    
+@use "global";
 @use "components/navbar";
-@use "components/home";  
+@use "components/home";
+@use "components/farmfeed";
+@use "components/dreams";
 @use "components/blog";
-@use "components/gallery";  
+@use "components/gallery";
 @use "components/map";
+@use "components/contact";
+@use "components/footer";

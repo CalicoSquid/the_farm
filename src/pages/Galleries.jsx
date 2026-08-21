@@ -1,61 +1,59 @@
-import onion from "../assets/onion.jpg";
-import rijeka from "../assets/rijeka2.png";
-import progress from "../assets/ruins2.jpg";
+import nature from "../assets/optimized/nature.webp";
+import rijeka from "../assets/optimized/rijeka.webp";
+import progress from "../assets/optimized/progress.webp";
 import { Link } from "react-router-dom";
 
-export default function Gallery() {
+export default function Galleries() {
   const tiles = [
     {
       title: "Nature",
-      fullImage: onion,
+      description: "Wildlife, plants, seasons and whatever else turns up.",
+      image: nature,
       id: "Nature",
     },
     {
-      title: "Rijeka Crnojevica",
-      fullImage: rijeka,
+      title: "Rijeka Crnojevića",
+      description: "The village, water and landscape surrounding the farm.",
+      image: rijeka,
       id: "Area",
     },
     {
       title: "Progress",
-      fullImage: progress,
+      description: "The slow, scrappy work of bringing the land back.",
+      image: progress,
       id: "Land",
     },
   ];
 
-  const handleImageClick = (url, title) => {
-    console.log("Clicked on image:", url, title);
-
-  };
-
   return (
-    <div className="gallery-container p-4 flex flex-col h-screen w-full">
-      <h2 className="text-2xl h2-text title font-bold text-center mb-6">
-        Project Gallery
-      </h2>
+    <main className="page-shell gallery-index">
+      <header className="page-intro">
+        <p className="eyebrow">The place in pictures</p>
+        <h1>Project gallery</h1>
+        <p className="page-intro__copy">
+          The land, the area around it, and evidence that occasionally something
+          does actually get done.
+        </p>
+      </header>
 
-      {/* Image Grid */}
-      <div
-        className="grid gap-4 mb-4 md:grid-cols-2 lg:grid-cols-3"
-      >
+      <div className="gallery-index__grid">
         {tiles.map((tile, index) => (
-          <div
-            key={index}
-            className="image-tile cursor-pointer"
-            onClick={() => handleImageClick(tile.fullImage, tile.title)}
+          <Link
+            key={tile.id}
+            to={`/gallery/${tile.id}?title=${encodeURIComponent(tile.title)}`}
+            className="gallery-feature"
           >
-<Link to={`/gallery/${tile.id}?title=${tile.title}`}>
-            <img
-              src={tile.fullImage}
-              alt={tile.title}
-              className="w-full h-full object-cover cover-image"
-            />
-            <div className="image-overlay">
-              <p className="image-title">{tile.title}</p>
+            <img src={tile.image} alt="" className="gallery-feature__image" />
+            <div className="gallery-feature__scrim" aria-hidden="true" />
+            <div className="gallery-feature__index">0{index + 1}</div>
+            <div className="gallery-feature__content">
+              <h2>{tile.title}</h2>
+              <p>{tile.description}</p>
+              <span className="gallery-feature__arrow" aria-hidden="true">↗</span>
             </div>
-            </Link>
-          </div>
+          </Link>
         ))}
       </div>
-    </div>
+    </main>
   );
 }

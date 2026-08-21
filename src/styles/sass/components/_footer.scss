@@ -1,0 +1,13 @@
+@use "../variables" as *;
+.site-footer { border-top: 1px solid $line; background: #eae3d7; }
+.site-footer__inner { width: min(1180px, calc(100% - 3rem)); min-height: 150px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+.site-footer__brand { margin: 0; font-family: $title-font; font-size: 1.6rem; line-height: 1; }
+.site-footer__line { margin: .55rem 0 0; color: $muted; font-size: .77rem; }
+.site-footer__links { display: flex; gap: 1.25rem; }
+.site-footer__links a { color: $forest; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
+.site-footer__links a:hover { color: $clay; }
+@media (max-width: 640px) {
+  .site-footer__inner { width: calc(100% - 1.5rem); min-height: 180px; align-items: flex-start; justify-content: center; flex-direction: column; }
+}
+.site-footer__links { flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 640px) { .site-footer__links { justify-content: flex-start; } }

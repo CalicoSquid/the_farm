@@ -1,134 +1,106 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import db from "../../firebase.config";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 export default function ImageGrid() {
   const [images, setImages] = useState([]);
-  const [loadingStates, setLoadingStates] = useState({});
   const [selectedImage, setSelectedImage] = useState(null);
-  const [imageTitle, setImageTitle] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isModalLoading, setIsModalLoading] = useState(false);
   const [orderImagesBy, setOrderImagesBy] = useState("desc");
-
+  const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const pageTitle = searchParams.get("title");
+  const pageTitle = new URLSearchParams(location.search).get("title") || "Gallery";
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchImages = async (order) => {
-      const imagesRef = collection(db, id);
-      const q = query(imagesRef, orderBy("createdAt", order));
-      const querySnapshot = await getDocs(q);
-      const imageUrls = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setImages(imageUrls);
-      setLoadingStates({}); // ✅ Reset load state correctly
+    const fetchImages = async () => {
+      setLoading(true);
+      try {
+        const imagesRef = collection(db, id);
+        const q = query(imagesRef, orderBy("createdAt", orderImagesBy));
+        const querySnapshot = await getDocs(q);
+        setImages(querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      } catch (error) {
+        console.error(`Unable to load ${pageTitle} images:`, error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchImages(orderImagesBy);
-  }, [id, orderImagesBy]);
+    fetchImages();
+  }, [id, orderImagesBy, pageTitle]);
 
-  const handleImageClick = (url, title) => {
-    setIsLoading(true);
-    setSelectedImage(url);
-    setImageTitle(title);
+  const openImage = (image) => {
+    setIsModalLoading(true);
+    setSelectedImage(image);
   };
 
-  const handleCloseModal = () => {
+  const closeImage = () => {
     setSelectedImage(null);
-    setImageTitle(null);
-    setIsLoading(false);
-  };
-
-  const handleImageLoad = (url) => {
-    setLoadingStates((prev) => ({
-      ...prev,
-      [url]: true,
-    }));
+    setIsModalLoading(false);
   };
 
   return (
-    <div className="gallery-container blog-post-containe screen w-full">
-      <h2 className="text-2xl h2-text title font-bold text-center mb-6">
-        {pageTitle}
-      </h2>
-      <div className="buttons flex justify-between">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          <span className="flip">➪</span> Back
-        </button>
-        <button
-          className="back-button image-sort"
-          onClick={() =>
-            setOrderImagesBy(orderImagesBy === "desc" ? "asc" : "desc")
-          }
-        >
-          Sort by: {orderImagesBy === "desc" ? "Newest" : "Oldest"}
-        </button>
-      </div>
-
-      {/* Image Grid */}
-      <div
-        className="grid gap-4 mb-4"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))" }}
-      >
-        {images.map((image, index) => (
-          <img
-            key={image.id} // ✅ Use unique Firestore document ID
-            src={image.url}
-            alt={`Thumbnail ${index}`}
-            className={`gallery-image cursor-pointer w-full h-70 object-cover transition-opacity duration-500 ease-in-out hover:opacity-80 ${
-              loadingStates[image.url] === false ? "opacity-0" : "opacity-100"
-            }`}
-            loading="lazy"
-            onLoad={() => handleImageLoad(image.url)}
-            onClick={() => handleImageClick(image.url, image.description)}
-          />
-        ))}
-      </div>
-
-      {/* Modal */}
-      {selectedImage && (
-        <div
-          className="fixed modal-overlay inset-0 flex justify-center items-center bg-black bg-opacity-70 z-50"
-          onClick={handleCloseModal}
-        >
-          <div
-            className="relative modal-content p-4 rounded-lg shadow-lg flex flex-col items-center"
-            onClick={(e) => e.stopPropagation()}
+    <main className="page-shell photo-page">
+      <header className="page-intro page-intro--with-actions">
+        <div>
+          <p className="eyebrow">Project gallery</p>
+          <h1>{pageTitle}</h1>
+          <p className="page-intro__copy">A running photographic record from the farm.</p>
+        </div>
+        <div className="page-actions">
+          <button className="button button--ghost" onClick={() => navigate(-1)}>
+            ← Back
+          </button>
+          <button
+            className="button button--ghost"
+            onClick={() => setOrderImagesBy((order) => (order === "desc" ? "asc" : "desc"))}
           >
-            {!isLoading && (
-              <button
-                onClick={handleCloseModal}
-                className="close-btn flex justify-center items-center absolute top-2 right-2 hover:bg-gray-600 text-white p-2 rounded-full z-10"
-              >
-                X
-              </button>
-            )}
+            {orderImagesBy === "desc" ? "Newest first" : "Oldest first"}
+          </button>
+        </div>
+      </header>
 
-            {isLoading && <div className="text-white mb-2">Loading...</div>}
+      {loading ? (
+        <div className="empty-state">Loading photographs…</div>
+      ) : images.length === 0 ? (
+        <div className="empty-state">Nothing here yet. Give the jungle time.</div>
+      ) : (
+        <div className="photo-grid">
+          {images.map((image) => (
+            <button
+              key={image.id}
+              className="photo-card"
+              type="button"
+              onClick={() => openImage(image)}
+              aria-label={`Open ${image.description || "farm photograph"}`}
+            >
+              <img src={image.url} alt={image.description || "Farm photograph"} loading="lazy" />
+              {image.description && <span className="photo-card__caption">{image.description}</span>}
+            </button>
+          ))}
+        </div>
+      )}
 
+      {selectedImage && (
+        <div className="lightbox" role="dialog" aria-modal="true" onClick={closeImage}>
+          <button className="lightbox__close" onClick={closeImage} aria-label="Close image">×</button>
+          <div className="lightbox__inner" onClick={(event) => event.stopPropagation()}>
+            {isModalLoading && <div className="lightbox__loading">Loading…</div>}
             <img
-              src={selectedImage}
-              alt="Full-size"
-              className={`image max-w-full max-h-[80vh] object-contain ${
-                isLoading ? "hidden" : "block"
-              }`}
-              onLoad={() => setIsLoading(false)}
+              src={selectedImage.url}
+              alt={selectedImage.description || "Farm photograph"}
+              onLoad={() => setIsModalLoading(false)}
+              className={isModalLoading ? "is-loading" : ""}
             />
-
-            {!isLoading && (
-              <p className="text-white image-title text-title mt-2">
-                {imageTitle}
-              </p>
+            {selectedImage.description && (
+              <p className="lightbox__caption">{selectedImage.description}</p>
             )}
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

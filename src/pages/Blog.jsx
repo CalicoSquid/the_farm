@@ -1,109 +1,113 @@
-import { useState, useContext } from "react";
-import { doc, updateDoc, increment } from "firebase/firestore";
-import db from "../../firebase.config";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { doc, increment, updateDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
+import db from "../../firebase.config";
 import { UnreadContext } from "../context/unreadContext";
-import renderTextWithLinksAndParagraphs from "../utils/rendertexwithparagraphs";
+
+const getDate = (blog) => blog.date?.toDate?.() || new Date(0);
+const stripFormatting = (text = "") =>
+  text.replace(/\/p\//g, " ").replace(/\/br\//g, " ").replace(/\/b\//g, "").replace(/\[([^\]]+)\]\{[^}]+\}/g, "$1");
 
 export default function Blog({ blogs, setBlogs }) {
-  const [sortOrder, setSortOrder] = useState("oldest");
+  const [sortOrder, setSortOrder] = useState("newest");
   const [likedPosts, setLikedPosts] = useState(new Set());
-  const { unreadPosts, setUnreadPosts, markAsRead } = useContext(UnreadContext);
+  const { unreadPosts, markAsRead } = useContext(UnreadContext);
+
+  useEffect(() => {
+    const storedLikes = JSON.parse(localStorage.getItem("likedPosts")) || [];
+    setLikedPosts(new Set(storedLikes));
+  }, []);
+
+  const sortedBlogs = useMemo(
+    () =>
+      [...blogs].sort((a, b) =>
+        sortOrder === "newest" ? getDate(b) - getDate(a) : getDate(a) - getDate(b)
+      ),
+    [blogs, sortOrder]
+  );
 
   const handleLike = async (id) => {
-    if (likedPosts.has(id)) return; // Prevent multiple likes
-
-    const postRef = doc(db, "Blogs", id);
-    await updateDoc(postRef, { likes: increment(1) });
-
-    setLikedPosts((prev) => {
-      const updatedLikes = new Set(prev);
-      updatedLikes.add(id);
-      localStorage.setItem("likedPosts", JSON.stringify([...updatedLikes]));
-      return updatedLikes;
-    });
-
-    setBlogs((prevBlogs) =>
-      prevBlogs.map((blog) =>
-        blog.id === id ? { ...blog, likes: (blog.likes || 0) + 1 } : blog
-      )
-    );
+    if (likedPosts.has(id)) return;
+    try {
+      await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+      setLikedPosts((prev) => {
+        const next = new Set(prev);
+        next.add(id);
+        localStorage.setItem("likedPosts", JSON.stringify([...next]));
+        return next;
+      });
+      setBlogs((prev) =>
+        prev.map((blog) => (blog.id === id ? { ...blog, likes: (blog.likes || 0) + 1 } : blog))
+      );
+    } catch (error) {
+      console.error("Unable to like update:", error);
+    }
   };
 
   const handleMarkAsRead = (id) => {
     const storedRead = JSON.parse(localStorage.getItem("readPosts")) || [];
     if (!storedRead.includes(id)) {
-      storedRead.push(id);
-      localStorage.setItem("readPosts", JSON.stringify(storedRead));
+      localStorage.setItem("readPosts", JSON.stringify([...storedRead, id]));
     }
-
-    setUnreadPosts((prevUnread) =>
-      prevUnread.filter((postId) => postId !== id)
-    );
     markAsRead(id);
   };
 
-  const sortedBlogs = [...blogs].sort((a, b) => {
-    return sortOrder === "newest"
-      ? new Date(a.date.toDate()) - new Date(b.date.toDate())
-      : new Date(b.date.toDate()) - new Date(a.date.toDate());
-  });
-
   return (
-    <div className="blog-container">
-      <h2 className="blog-title text-2xl h2-text title font-bold text-center mb-6">
-        Updates
-      </h2>
-      <div className="sort-container">
+    <main className="page-shell journal-page">
+      <header className="page-intro page-intro--with-actions">
+        <div>
+          <p className="eyebrow">Notes from the long way round</p>
+          <h1>Updates</h1>
+          <p className="page-intro__copy">
+            Longer stories from the farm — progress, detours, plans and the occasional existential crisis.
+          </p>
+        </div>
         <button
-          className="sort-button"
-          onClick={() =>
-            setSortOrder(sortOrder === "newest" ? "oldest" : "newest")
-          }
+          className="button button--ghost"
+          onClick={() => setSortOrder((order) => (order === "newest" ? "oldest" : "newest"))}
         >
-          Sort by: {sortOrder === "newest" ? "Oldest" : "Newest"}
+          {sortOrder === "newest" ? "Newest first" : "Oldest first"}
         </button>
-      </div>
-      <div className="blog-grid">
-        {sortedBlogs.map((blog) => (
-          <div key={blog.id} className="blog-post relative">
-            <img src={blog.imageUrl} alt={blog.title} className="blog-image" />
-            <h3 className="blog-post-title">{blog.title}</h3>
-            <small className="blog-date flex items-center gap-2">
-              Published on:{" "}
-              {blog.date?.toDate().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-              {unreadPosts.includes(blog.id) && (
-                <span className="unread-indicator-post bg-red-500 text-white text-xs font-bold shadow-md">
-                  New
-                </span>
-              )}
-            </small>
+      </header>
 
-            <p className="blog-body">{renderTextWithLinksAndParagraphs(blog.body.substring(0, 250))}...</p>
-            <Link
-              to={`/blog/${blog.id}`}
-              onClick={() => handleMarkAsRead(blog.id)}
-            >
-              <button className="btn-primary">Read More</button>
-            </Link>
-            <div className="likes-section">
-              <button
-                className={`like-button ${
-                  likedPosts.has(blog.id) ? "liked" : ""
-                }`}
-                onClick={() => handleLike(blog.id)}
-                disabled={likedPosts.has(blog.id)}
-              >
-                ❤️ {blog.likes || 0}
-              </button>
-            </div>
-          </div>
-        ))}
+      <div className="journal-list">
+        {sortedBlogs.length === 0 && <div className="empty-state">Loading updates…</div>}
+        {sortedBlogs.map((blog) => {
+          const excerpt = stripFormatting(blog.body).trim();
+          const isUnread = unreadPosts.includes(blog.id);
+          const isLiked = likedPosts.has(blog.id);
+          return (
+            <article key={blog.id} className="journal-card">
+              <Link to={`/blog/${blog.id}`} onClick={() => handleMarkAsRead(blog.id)} className="journal-card__image-link">
+                <img src={blog.imageUrl} alt="" className="journal-card__image" loading="lazy" />
+              </Link>
+              <div className="journal-card__content">
+                <div className="journal-card__meta">
+                  <time>{getDate(blog).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>
+                  {isUnread && <span className="status-pill">New</span>}
+                </div>
+                <h2>
+                  <Link to={`/blog/${blog.id}`} onClick={() => handleMarkAsRead(blog.id)}>{blog.title}</Link>
+                </h2>
+                <p>{excerpt.slice(0, 260)}{excerpt.length > 260 ? "…" : ""}</p>
+                <div className="journal-card__footer">
+                  <Link to={`/blog/${blog.id}`} onClick={() => handleMarkAsRead(blog.id)} className="text-link">
+                    Read update <span aria-hidden="true">→</span>
+                  </Link>
+                  <button
+                    className={`like-button${isLiked ? " liked" : ""}`}
+                    onClick={() => handleLike(blog.id)}
+                    disabled={isLiked}
+                    aria-label={isLiked ? "Already liked" : "Like this update"}
+                  >
+                    <span aria-hidden="true">♥</span> {blog.likes || 0}
+                  </button>
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
-    </div>
+    </main>
   );
 }

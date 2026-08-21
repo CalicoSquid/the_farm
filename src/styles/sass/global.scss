@@ -1,43 +1,128 @@
 @use "variables" as *;
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: $cream; }
+html, body, #root { min-height: 100%; margin: 0; }
+body {
+  background: $cream;
+  color: $ink;
+  font-family: $body-font;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; }
+button { border: 0; }
+a { color: inherit; }
+img { display: block; max-width: 100%; }
+::selection { background: rgba(164, 79, 56, 0.2); }
+
+.App { min-height: 100vh; display: flex; flex-direction: column; }
+.site-content { flex: 1; }
+
+.page-shell {
+  width: min(1180px, calc(100% - 3rem));
+  margin: 0 auto;
+  padding: clamp(3.5rem, 7vw, 6.5rem) 0 clamp(5rem, 9vw, 8rem);
 }
 
-html, body, #root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: $background-color;
+.page-intro {
+  max-width: 760px;
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+.page-intro--with-actions {
+  max-width: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+.page-intro h1,
+.article__header h1,
+.contact-card h1 {
+  margin: 0;
+  font-family: $title-font;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+}
+.page-intro h1 { font-size: clamp(3rem, 7vw, 5.8rem); }
+.page-intro__copy {
+  max-width: 620px;
+  margin: 1.25rem 0 0;
+  color: $muted;
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+}
+.eyebrow {
+  margin: 0 0 0.8rem;
+  color: $moss;
+  font-family: $accent-font;
+  font-size: 0.76rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-.App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    max-height: 100vh;
+.button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: $ink;
+  font-size: 0.88rem;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+.button:hover { transform: translateY(-1px); }
+.button--dark { background: $forest; color: $white; }
+.button--dark:hover { background: $ink; }
+.button--light { background: $paper; color: $ink; box-shadow: 0 10px 30px rgba(17, 23, 18, 0.14); }
+.button--light:hover { background: #fff; }
+.button--ghost { border-color: $line; background: rgba(255,255,255,.34); }
+.button--ghost:hover { border-color: rgba(31,43,34,.28); background: rgba(255,255,255,.7); }
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  color: $forest;
+  font-size: .9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+.text-link span { transition: transform 160ms ease; }
+.text-link:hover span { transform: translateX(3px); }
+.text-link--light { color: #fff; text-shadow: 0 1px 12px rgba(0,0,0,.25); }
+.text-link--button { padding: 0; background: none; cursor: pointer; }
+
+.status-pill {
+  display: inline-flex;
+  padding: .18rem .5rem;
+  border-radius: 999px;
+  background: rgba(164,79,56,.11);
+  color: $clay;
+  font-size: .66rem;
+  font-weight: 850;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.empty-state {
+  padding: 4rem 1rem;
+  border-top: 1px solid $line;
+  border-bottom: 1px solid $line;
+  color: $muted;
+  text-align: center;
 }
 
-.h2-text {
-    font-family: $title-font;
-  font-size: 2rem;
-  color: $tertiary-color;  
-  margin-bottom: 10px;
+@media (max-width: 760px) {
+  .page-shell { width: min(100% - 1.5rem, 1180px); padding-top: 2.75rem; }
+  .page-intro--with-actions { align-items: flex-start; flex-direction: column; gap: 1.5rem; }
+  .page-actions { width: 100%; display: flex; gap: .6rem; flex-wrap: wrap; }
 }
-
-img {
-    border-radius: 10px;
-}
-
-.flip {
-    display: inline-block; /* Ensure it can be transformed */
-    transform: scaleX(-1); /* Flip the arrow horizontally */
-  }
-
-  .mt-2 {
-    margin-top: 10px;
-  }
-
-  

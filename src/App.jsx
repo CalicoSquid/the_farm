@@ -1,17 +1,19 @@
-import { useState, useEffect, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { collection, getDocs } from "firebase/firestore";
 import { UnreadContext } from "./context/unreadContext";
+import db from "../firebase.config";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import BlogPost from "./components/BlogPost";
+import ImageGrid from "./components/ImageGrid";
 import Home from "./pages/Home";
-import Gallery from "./pages/Gallery";
+import FromTheFarm from "./pages/FromTheFarm";
+import Dreams from "./pages/Dreams";
 import Galleries from "./pages/Galleries";
 import Blog from "./pages/Blog";
-import Contact from "./pages/Contact";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Map from "./pages/Map";
-import BlogPost from "./components/BlogPost";
-import { collection, getDocs } from "firebase/firestore";
-import db from "../firebase.config";
-import ImageGrid from "./components/ImageGrid";
+import Contact from "./pages/Contact";
 
 function App() {
   const [blogs, setBlogs] = useState([]);
@@ -19,27 +21,21 @@ function App() {
 
   useEffect(() => {
     const fetchBlogs = async () => {
-      const querySnapshot = await getDocs(collection(db, "Blogs"));
-      const blogData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      try {
+        const querySnapshot = await getDocs(collection(db, "Blogs"));
+        const blogData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-      setBlogs(blogData);
+        setBlogs(blogData);
 
-      // Get the stored read posts from localStorage
-      const storedRead = JSON.parse(localStorage.getItem("readPosts")) || [];
-      console.log(storedRead);
-
-      // Filter out posts that have been marked as read
-      const newUnread = blogData
-        .map((blog) => blog.id)
-        .filter((id) => !storedRead.includes(id));
-
-      console.log(newUnread);
-
-      if (newUnread.length > 0) {
-        setUnreadPosts(newUnread); // Set unread posts based on those not in read posts list
+        const storedRead = JSON.parse(localStorage.getItem("readPosts")) || [];
+        setUnreadPosts(
+          blogData.map((blog) => blog.id).filter((id) => !storedRead.includes(id))
+        );
+      } catch (error) {
+        console.error("Unable to load farm updates:", error);
       }
     };
 
@@ -50,20 +46,20 @@ function App() {
     <Router>
       <div className="App">
         <Navbar />
-        <div className="flex flex-1 p-4">
+        <div className="site-content">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/from-the-farm" element={<FromTheFarm />} />
+            <Route path="/dreams" element={<Dreams />} />
             <Route path="/gallery" element={<Galleries />} />
             <Route path="/gallery/:id" element={<ImageGrid />} />
-            <Route
-              path="/blog"
-              element={<Blog blogs={blogs} setBlogs={setBlogs} />}
-            />
+            <Route path="/blog" element={<Blog blogs={blogs} setBlogs={setBlogs} />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/map" element={<Map />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>
         </div>
+        <Footer />
       </div>
     </Router>
   );

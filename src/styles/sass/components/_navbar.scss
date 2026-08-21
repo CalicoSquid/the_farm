@@ -1,101 +1,95 @@
 @use "../variables" as *;
 
-.tablist {
-  flex: 1;
-  align-items: center;
-  background-color: $background-color;
-  border: 1px solid red;
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(247, 243, 235, 0.92);
+  border-bottom: 1px solid $line;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
-
-.menu {
-  background-color: $background-color;
-  width: 50%;
-  height: 100vh;
-  background-color: rgba(112, 108, 108, 0.3); /* Semi-transparent black background */
-  backdrop-filter: blur(10px); /* Apply blur 3 the content behind */
-  z-index: 9999; /* Ensure the menu appears above all other content */
-}
-
-.logo {
-  padding: 0.5rem;
-  color: $primary-color;  
-  font-size: 2rem;
-}
-
-.tab {
-  flex: 1;
-  text-transform: uppercase;
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  cursor: pointer;
-  display: inline-block;
-  color: $primary-color; /* Default color */
-  transition: color 0.3s ease, transform 0.2s ease; /* Add transition for color and transform */
-}
-
-/* Hover effect */
-.tab:hover {
-  color: $secondary-color; /* Change text color on hover */
-  transform: translateY(-2px); /* Lift link on hover */
-}
-
-/* Active link (when the user is on the current page) */
-.tab-active {
-  color: $secondary-color; /* Make active link the secondary color */
-  font-weight: bold; /* Optional: Make the active tab bold */
-}
-
-/* Optionally add a line under active tab */
-.tab-active::after {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 2px;
-  background-color: $secondary-color; /* Underline effect for active tab */
-  border-radius: 0.5rem;
-  margin-top: 2px;
-}
-
-.hamburger {
-    padding: 0.5rem;
-    cursor: pointer;
-    border: 1px solid $primary-color;
-    margin-right: 7px;
-    border-radius: 5px;
-}
-
-.unread-indicator {
-  background: $highlight-color; 
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  width: 18px;
-  height: 18px;
+.site-header__inner {
+  width: min(1240px, calc(100% - 3rem));
+  height: 78px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  position: absolute;
-  top: 14px;
-  right: -10px;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.site-brand { display: inline-flex; flex-direction: column; text-decoration: none; line-height: 1; }
+.site-brand__name {
+  font-family: $title-font;
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -.035em;
+}
+.site-brand__place {
+  margin-top: .34rem;
+  color: $muted;
+  font-family: $accent-font;
+  font-size: .65rem;
+  font-weight: 400;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.desktop-nav { display: flex; align-items: center; gap: .35rem; }
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .65rem .75rem;
+  color: #50564f;
+  font-size: .75rem;
+  font-weight: 750;
+  letter-spacing: .075em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 160ms ease;
+}
+.nav-link::after { content: ""; position: absolute; left: .75rem; right: .75rem; bottom: .35rem; height: 1px; background: $forest; transform: scaleX(0); transform-origin: left; transition: transform 180ms ease; }
+.nav-link:hover, .nav-link--active { color: $ink; }
+.nav-link--active::after { transform: scaleX(1); }
+.nav-count { min-width: 19px; height: 19px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: $clay; color: #fff; font-size: .64rem; line-height: 1; }
+.menu-trigger { display: none; position: relative; width: 46px; height: 46px; padding: 0; border: 1px solid $line; border-radius: 50%; background: rgba(255,255,255,.38); cursor: pointer; }
+.menu-trigger > span:not(.menu-trigger__count) { position: absolute; left: 13px; width: 18px; height: 1.5px; background: $ink; transition: transform 180ms ease, opacity 180ms ease; }
+.menu-trigger > span:nth-child(1) { top: 16px; }
+.menu-trigger > span:nth-child(2) { top: 22px; }
+.menu-trigger > span:nth-child(3) { top: 28px; }
+.menu-trigger--open > span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-trigger--open > span:nth-child(2) { opacity: 0; }
+.menu-trigger--open > span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.menu-trigger__count { position: absolute; top: -4px; right: -3px; min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 5px; border-radius: 999px; background: $clay; color: #fff; font-size: .62rem; font-weight: 800; }
+.mobile-nav { visibility: hidden; position: fixed; inset: 78px 0 0; z-index: 999; pointer-events: none; }
+.mobile-nav__backdrop { position: absolute; inset: 0; background: rgba(16,22,17,.34); opacity: 0; transition: opacity 240ms ease; }
+.mobile-nav__panel { position: absolute; top: 0; right: 0; width: min(88vw, 430px); height: 100%; padding: 2.2rem 1.5rem 1.5rem; display: flex; flex-direction: column; background: $paper; border-left: 1px solid $line; transform: translateX(100%); transition: transform 260ms cubic-bezier(.2,.8,.2,1); box-shadow: -30px 0 60px rgba(24,31,25,.12); }
+.mobile-nav--open { visibility: visible; pointer-events: auto; }
+.mobile-nav--open .mobile-nav__backdrop { opacity: 1; }
+.mobile-nav--open .mobile-nav__panel { transform: translateX(0); }
+.mobile-nav__intro { padding: .3rem 0 2rem; border-bottom: 1px solid $line; }
+.mobile-nav__eyebrow { color: $moss; font-family: $accent-font; font-size: .72rem; font-weight: 400; letter-spacing: .13em; text-transform: uppercase; }
+.mobile-nav__intro p { max-width: 25ch; margin: .65rem 0 0; font-family: $title-font; font-size: 1.4rem; line-height: 1.16; }
+.mobile-nav__links { display: flex; flex-direction: column; padding: 1rem 0; }
+.mobile-nav__link { display: grid; grid-template-columns: 2rem 1fr auto; align-items: center; gap: .8rem; min-height: 62px; border-bottom: 1px solid $line; font-family: $title-font; font-size: 1.55rem; text-decoration: none; }
+.mobile-nav__number { color: $stone; font-family: $body-font; font-size: .66rem; font-weight: 800; letter-spacing: .08em; }
+.mobile-nav__link--active { color: $clay; }
+.mobile-nav__footer { margin-top: auto; color: $muted; font-size: .75rem; }
+
+@media (max-width: 820px) {
+  .site-header__inner { width: calc(100% - 1.5rem); height: 70px; }
+  .site-brand__name { font-size: 1.38rem; }
+  .site-brand__place { font-size: .58rem; }
+  .desktop-nav { display: none; }
+  .menu-trigger { display: block; }
+  .mobile-nav { inset: 70px 0 0; }
 }
 
-.full {
-  right: -5px;
-}
-.mobile-menu {
-  background-image: url("/public/menubg4.png");
-  background-size: cover; /* Ensures image covers entire div */
-  background-position: center center; /* Centers the image */
-  background-repeat: no-repeat; /* Ensures the image doesn't repeat */
-  height: 100vh; /* Ensures the div takes up the full height of the screen */
-  width: 100%; /* Ensures the div takes up the full width */
-  position: fixed; /* Fixes the menu position */
-  top: 0; /* Aligns the menu to the top */
-  left: 0; 
-  z-index: 50; /* Ensure it’s above other content */
-  overflow: hidden; /* Prevents any overflow issues */
+@media (min-width: 821px) and (max-width: 1040px) {
+  .site-header__inner { width: calc(100% - 2rem); }
+  .site-brand__place { display: none; }
+  .desktop-nav { gap: .05rem; }
+  .nav-link { padding-inline: .55rem; font-size: .69rem; }
+  .nav-link::after { left: .55rem; right: .55rem; }
 }
