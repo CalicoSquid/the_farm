@@ -16,7 +16,6 @@ export default function Navbar() {
   const { unreadCount } = useContext(UnreadContext);
   const location = useLocation();
 
-  // Route changes should always leave the navigation in a clean state.
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
@@ -25,6 +24,7 @@ export default function Navbar() {
     const handleEscape = (event) => {
       if (event.key === "Escape") setIsMenuOpen(false);
     };
+
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, []);
@@ -65,9 +65,11 @@ export default function Navbar() {
           aria-expanded={isMenuOpen}
           aria-controls="mobile-navigation"
         >
-          <span />
-          <span />
-          <span />
+          <span className="menu-trigger__label">{isMenuOpen ? "Close" : "Menu"}</span>
+          <span className="menu-trigger__icon" aria-hidden="true">
+            <span />
+            <span />
+          </span>
           {unreadCount > 0 && !isMenuOpen && (
             <span className="menu-trigger__count">{unreadCount}</span>
           )}

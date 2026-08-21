@@ -57,72 +57,75 @@
 .menu-trigger {
   display: none;
   position: relative;
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
+  min-height: 42px;
+  align-items: center;
+  gap: .55rem;
+  padding: .55rem .7rem;
+  border: 1px solid $line;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .38);
+  color: $ink;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.menu-trigger > span:not(.menu-trigger__count) {
+.menu-trigger__label {
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.menu-trigger__icon {
+  position: relative;
+  width: 18px;
+  height: 14px;
+  display: block;
+}
+.menu-trigger__icon > span {
   position: absolute;
-  left: 12px;
-  width: 20px;
+  left: 0;
+  width: 18px;
   height: 1.5px;
   border-radius: 2px;
-  background: $ink;
-  transform-origin: center;
-  transition: transform 180ms ease, opacity 120ms ease;
+  background: currentColor;
+  transition: transform 180ms ease, top 180ms ease;
 }
-.menu-trigger > span:nth-child(1) { top: 15px; }
-.menu-trigger > span:nth-child(2) { top: 21px; }
-.menu-trigger > span:nth-child(3) { top: 27px; }
-.menu-trigger--open > span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-.menu-trigger--open > span:nth-child(2) { opacity: 0; }
-.menu-trigger--open > span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-.menu-trigger__count { position: absolute; top: -2px; right: -2px; min-width: 19px; height: 19px; display: grid; place-items: center; padding: 0 5px; border-radius: 999px; background: $clay; color: #fff; font-size: .6rem; font-weight: 800; }
-
-/*
- * Mobile navigation is deliberately a full-width sheet rather than a side
- * drawer. It avoids the scroll-lock/layout jump and snap-close behaviour of
- * the previous version on mobile browsers.
- */
-.mobile-nav {
-  display: none;
+.menu-trigger__icon > span:first-child { top: 3px; }
+.menu-trigger__icon > span:last-child { top: 10px; }
+.menu-trigger--open .menu-trigger__icon > span:first-child { top: 6px; transform: rotate(45deg); }
+.menu-trigger--open .menu-trigger__icon > span:last-child { top: 6px; transform: rotate(-45deg); }
+.menu-trigger__count {
+  position: absolute;
+  top: -5px;
+  right: -4px;
+  min-width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: $clay;
+  color: #fff;
+  font-size: .6rem;
+  font-weight: 800;
 }
 
-@media (max-width: 820px) {
-  .site-header__inner { width: calc(100% - 1.5rem); height: 70px; }
-  .site-brand__name { font-size: 1.38rem; }
-  .site-brand__place { font-size: .58rem; }
+.mobile-nav { display: none; }
+
+@media (max-width: 900px) {
+  .site-header__inner { width: calc(100% - 1.5rem); height: 70px; gap: .8rem; }
+  .site-brand { min-width: 0; }
+  .site-brand__name { font-size: 1.34rem; white-space: nowrap; }
+  .site-brand__place { display: none; }
   .desktop-nav { display: none; }
-  .menu-trigger { display: block; }
+  .menu-trigger { display: inline-flex; flex: 0 0 auto; }
 
-  .mobile-nav {
+  .mobile-nav--open {
     display: block;
-    visibility: hidden;
     position: fixed;
     inset: 70px 0 0;
     z-index: 999;
     overflow: hidden;
-    background: rgba(247, 243, 235, 0.98);
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-8px);
-    transition:
-      opacity 160ms ease,
-      transform 180ms ease,
-      visibility 0s linear 180ms;
-  }
-  .mobile-nav--open {
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-    transition-delay: 0s;
+    background: rgba(247, 243, 235, .99);
   }
   .mobile-nav__panel {
     width: min(100%, 680px);
@@ -188,10 +191,10 @@
   }
 }
 
-@media (min-width: 821px) and (max-width: 1040px) {
+@media (min-width: 901px) and (max-width: 1100px) {
   .site-header__inner { width: calc(100% - 2rem); }
   .site-brand__place { display: none; }
   .desktop-nav { gap: .05rem; }
-  .nav-link { padding-inline: .55rem; font-size: .69rem; }
-  .nav-link::after { left: .55rem; right: .55rem; }
+  .nav-link { padding-inline: .5rem; font-size: .67rem; }
+  .nav-link::after { left: .5rem; right: .5rem; }
 }
