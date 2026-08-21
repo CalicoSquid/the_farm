@@ -13,7 +13,6 @@ import Dreams from "./pages/Dreams";
 import Galleries from "./pages/Galleries";
 import Blog from "./pages/Blog";
 import Map from "./pages/Map";
-import Contact from "./pages/Contact";
 import { localBlogs } from "./content/localBlogs";
 
 function App() {
@@ -69,7 +68,6 @@ function App() {
             <Route path="/blog" element={<Blog blogs={blogs} setBlogs={setBlogs} />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/map" element={<Map />} />
-            <Route path="/contact" element={<Contact />} />
           </Routes>
         </div>
         <Footer />

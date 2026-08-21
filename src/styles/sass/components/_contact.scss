@@ -1,6 +1,0 @@
-@use "../variables" as *;
-.contact-page { display: grid; place-items: center; min-height: 65vh; }
-.contact-card { width: min(680px, 100%); padding: clamp(2rem, 6vw, 4.5rem); border: 1px solid $line; background: rgba(255,255,255,.3); text-align: center; }
-.contact-card h1 { font-size: clamp(3rem, 8vw, 5.8rem); }
-.contact-card > p:not(.eyebrow) { max-width: 50ch; margin: 1.3rem auto 0; color: $muted; }
-.contact-card__links { margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 1.2rem; flex-wrap: wrap; }
