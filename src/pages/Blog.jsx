@@ -3,7 +3,6 @@ import { doc, increment, updateDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import db from "../../firebase.config";
 import { UnreadContext } from "../context/unreadContext";
-import { localBlogs } from "../content/localBlogs";
 
 const getDate = (blog) => {
   if (blog.date?.toDate) return blog.date.toDate();
@@ -32,29 +31,21 @@ export default function Blog({ blogs, setBlogs }) {
     setLikedPosts(new Set(readStored("likedPosts")));
   }, []);
 
-  // Important: Firestore's `blogs` state is left completely untouched.
-  // The local comeback essay only joins the list here at render time.
-  const allBlogs = useMemo(() => [...localBlogs, ...blogs], [blogs]);
-
   const sortedBlogs = useMemo(
     () =>
-      [...allBlogs].sort((a, b) =>
+      [...blogs].sort((a, b) =>
         sortOrder === "newest" ? getDate(b) - getDate(a) : getDate(a) - getDate(b)
       ),
-    [allBlogs, sortOrder]
+    [blogs, sortOrder]
   );
 
   const handleLike = async (id) => {
     if (likedPosts.has(id)) return;
-    const target = allBlogs.find((blog) => blog.id === id);
-
     try {
-      if (!target?.local) {
-        await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
-        setBlogs((prev) =>
-          prev.map((blog) => (blog.id === id ? { ...blog, likes: (blog.likes || 0) + 1 } : blog))
-        );
-      }
+      await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+      setBlogs((prev) =>
+        prev.map((blog) => (blog.id === id ? { ...blog, likes: (blog.likes || 0) + 1 } : blog))
+      );
 
       setLikedPosts((prev) => {
         const next = new Set(prev);
@@ -100,7 +91,7 @@ export default function Blog({ blogs, setBlogs }) {
           const isUnread = unreadPosts.includes(blog.id);
           const isLiked = likedPosts.has(blog.id);
           return (
-            <article key={`${blog.local ? "local" : "remote"}-${blog.id}`} className="journal-card">
+            <article key={blog.id} className="journal-card">
               <Link to={`/blog/${blog.id}`} onClick={() => handleMarkAsRead(blog.id)} className="journal-card__image-link">
                 <img src={blog.imageUrl} alt="" className="journal-card__image" loading="lazy" />
               </Link>
@@ -123,7 +114,7 @@ export default function Blog({ blogs, setBlogs }) {
                     disabled={isLiked}
                     aria-label={isLiked ? "Already liked" : "Like this update"}
                   >
-                    <span aria-hidden="true">♥</span> {blog.local ? (isLiked ? "Liked" : "Like") : (blog.likes || 0)}
+                    <span aria-hidden="true">♥</span> {isLiked ? "Liked" : (blog.likes || 0)}
                   </button>
                 </div>
               </div>

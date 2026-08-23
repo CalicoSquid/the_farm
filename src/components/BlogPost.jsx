@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
 import db from "../../firebase.config";
 import renderTextWithLinksAndParagraphs from "../utils/rendertexwithparagraphs.jsx";
-import { getLocalBlogById } from "../content/localBlogs";
 
 const getDate = (blog) => {
   if (blog?.date?.toDate) return blog.date.toDate();
@@ -28,26 +27,18 @@ export default function BlogPost() {
   const [liked, setLiked] = useState(false);
 
   useEffect(() => {
-    const localBlog = getLocalBlogById(id);
+    const fetchBlog = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, "Blogs", id));
+        if (docSnap.exists()) setBlog({ id: docSnap.id, ...docSnap.data() });
+      } catch (error) {
+        console.error("Unable to load update:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (localBlog) {
-      setBlog(localBlog);
-      setLoading(false);
-    } else {
-      const fetchBlog = async () => {
-        try {
-          // Keep the working remote article path exactly simple: direct getDoc.
-          const docSnap = await getDoc(doc(db, "Blogs", id));
-          if (docSnap.exists()) setBlog(docSnap.data());
-        } catch (error) {
-          console.error("Unable to load update:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchBlog();
-    }
-
+    fetchBlog();
     setLiked(readStored("likedPosts").includes(id));
   }, [id]);
 
@@ -55,10 +46,8 @@ export default function BlogPost() {
     if (liked) return;
 
     try {
-      if (!blog?.local) {
-        await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
-        setBlog((prev) => ({ ...prev, likes: (prev.likes || 0) + 1 }));
-      }
+      await updateDoc(doc(db, "Blogs", id), { likes: increment(1) });
+      setBlog((prev) => ({ ...prev, likes: (prev.likes || 0) + 1 }));
 
       setLiked(true);
       const likedPosts = readStored("likedPosts");
@@ -107,7 +96,7 @@ export default function BlogPost() {
 
         <footer className="article__footer">
           <button className={`like-button like-button--article${liked ? " liked" : ""}`} onClick={handleLike} disabled={liked}>
-            <span aria-hidden="true">♥</span> {liked ? "Liked" : "Like this"}{!blog.local && ` · ${blog.likes || 0}`}
+            <span aria-hidden="true">♥</span> {liked ? "Liked" : "Like this"} · {blog.likes || 0}
           </button>
         </footer>
       </article>
