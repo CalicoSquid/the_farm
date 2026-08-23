@@ -3,15 +3,7 @@ import { doc, increment, updateDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import db from "../../firebase.config";
 import { UnreadContext } from "../context/unreadContext";
-
-const getDate = (blog) => {
-  if (blog.date?.toDate) return blog.date.toDate();
-  const parsed = new Date(blog.date || 0);
-  return Number.isNaN(parsed.getTime()) ? new Date(0) : parsed;
-};
-
-const stripFormatting = (text = "") =>
-  text.replace(/\/p\//g, " ").replace(/\/br\//g, " ").replace(/\/b\//g, "").replace(/\[([^\]]+)\]\{[^}]+\}/g, "$1");
+import { getBlogDate, getBlogExcerpt, getBlogTimestamp } from "../utils/blog";
 
 const readStored = (key) => {
   try {
@@ -34,7 +26,9 @@ export default function Blog({ blogs, setBlogs }) {
   const sortedBlogs = useMemo(
     () =>
       [...blogs].sort((a, b) =>
-        sortOrder === "newest" ? getDate(b) - getDate(a) : getDate(a) - getDate(b)
+        sortOrder === "newest"
+          ? getBlogTimestamp(b) - getBlogTimestamp(a)
+          : getBlogTimestamp(a) - getBlogTimestamp(b)
       ),
     [blogs, sortOrder]
   );
@@ -87,7 +81,8 @@ export default function Blog({ blogs, setBlogs }) {
       <div className="journal-list">
         {sortedBlogs.length === 0 && <div className="empty-state">Loading updates…</div>}
         {sortedBlogs.map((blog) => {
-          const excerpt = blog.excerpt || stripFormatting(blog.body).trim();
+          const excerpt = getBlogExcerpt(blog);
+          const published = getBlogDate(blog);
           const isUnread = unreadPosts.includes(blog.id);
           const isLiked = likedPosts.has(blog.id);
           return (
@@ -97,7 +92,9 @@ export default function Blog({ blogs, setBlogs }) {
               </Link>
               <div className="journal-card__content">
                 <div className="journal-card__meta">
-                  <time>{getDate(blog).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>
+                  {published && (
+                    <time>{published.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>
+                  )}
                   {isUnread && <span className="status-pill">New</span>}
                 </div>
                 <h2>

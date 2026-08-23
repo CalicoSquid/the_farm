@@ -3,12 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
 import db from "../../firebase.config";
 import renderTextWithLinksAndParagraphs from "../utils/rendertexwithparagraphs.jsx";
-
-const getDate = (blog) => {
-  if (blog?.date?.toDate) return blog.date.toDate();
-  const parsed = new Date(blog?.date || 0);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-};
+import { getBlogDate, normalizeBlog } from "../utils/blog";
 
 const readStored = (key) => {
   try {
@@ -30,7 +25,7 @@ export default function BlogPost() {
     const fetchBlog = async () => {
       try {
         const docSnap = await getDoc(doc(db, "Blogs", id));
-        if (docSnap.exists()) setBlog({ id: docSnap.id, ...docSnap.data() });
+        if (docSnap.exists()) setBlog(normalizeBlog(docSnap.id, docSnap.data()));
       } catch (error) {
         console.error("Unable to load update:", error);
       } finally {
@@ -60,7 +55,7 @@ export default function BlogPost() {
   if (loading) return <main className="page-shell"><div className="empty-state">Loading update…</div></main>;
   if (!blog) return <main className="page-shell"><div className="empty-state">That update couldn’t be found.</div></main>;
 
-  const published = getDate(blog);
+  const published = getBlogDate(blog);
 
   return (
     <main className="article-page">

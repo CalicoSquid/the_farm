@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import { UnreadContext } from "./context/unreadContext";
 import db from "../firebase.config";
+import { normalizeBlog } from "./utils/blog";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import BlogPost from "./components/BlogPost";
@@ -23,10 +24,9 @@ function App() {
     const fetchBlogs = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "Blogs"));
-        const blogData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const blogData = querySnapshot.docs.map((doc) =>
+          normalizeBlog(doc.id, doc.data())
+        );
 
         setBlogs(blogData);
 

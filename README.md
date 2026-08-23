@@ -43,3 +43,44 @@ removed by URL.
 This pass adds the `/dreams` section as the hopeful counterpart to **From the Farm**. The saved former homepage concept image now lives here as an explicitly aspirational daydream, alongside a deliberately loose set of future ideas. Dreams is also linked from the homepage, primary navigation, mobile navigation, and footer.
 
 The section is intentionally static for now: it is a place for possibilities rather than a project tracker. No timelines, completion percentages, or commitments are attached to the ideas.
+
+## Blog document shape
+
+Blog posts live in the `Blogs` Firestore collection. The site normalizes every
+Firestore document into one predictable shape when it is loaded, so older posts
+can remain simple while newer posts can opt into richer presentation fields.
+
+Core fields:
+
+```js
+{
+  title: "Post title",
+  date: Timestamp,
+  imageUrl: "https://...",
+  body: "Article body using /p/, /b/, /br/ and [label]{url} markup",
+  likes: 0,
+}
+```
+
+Optional richer fields:
+
+```js
+{
+  dek: "Optional standfirst beneath the title",
+  excerpt: "Optional archive-card excerpt",
+  relatedLinks: [
+    {
+      eyebrow: "Right now",
+      title: "From the Farm",
+      copy: "Short supporting copy",
+      to: "/from-the-farm",
+      label: "See what’s happening",
+    },
+  ],
+}
+```
+
+The document ID is the public blog slug. Missing optional fields normalize to an
+empty string or empty array, and missing/invalid `likes` normalize to `0` in the
+UI. New posts should still use the canonical field names above rather than
+introducing aliases.
